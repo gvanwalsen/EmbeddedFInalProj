@@ -1,0 +1,52 @@
+//This is it reading from pots have to configure for actual sensor data
+
+#include <msp430g2553.h>
+volatile int i;
+volatile long pot1;
+volatile long pot2;
+void ConfigureAdc_pot1();
+void ConfigureAdc_pot2();
+void main(void)
+{
+    WDTCTL = WDTPW + WDTHOLD; // Stop watchdog timer
+
+    while(1){
+                if (i==0){
+                ConfigureAdc_pot1();
+                ADC10CTL0 |= ENC + ADC10SC +MSC;       // Converter Enable, Sampling/conversion start
+                while((ADC10CTL0 & ADC10IFG) == 0);    // check the Flag, while its low just wait
+                
+
+                pot1 = ADC10MEM;                    // read the converted data into a variable
+
+                                    i = 1;
+
+    }
+                if (i==1){
+                                ConfigureAdc_pot2();
+                                ADC10CTL0 |= ENC + ADC10SC +MSC;       // Converter Enable, Sampling/conversion start
+                                while((ADC10CTL0 & ADC10IFG) == 0);    // check the Flag, while its low just wait
+                                
+
+                                pot2 = ADC10MEM;                    // read the converted data into a variable
+
+                                                    i = 0;
+    }
+}
+}
+
+
+void ConfigureAdc_pot1(){
+    ADC10CTL0 &= ~ENC;
+     ADC10CTL1 = INCH_4 + ADC10DIV_0 + CONSEQ_2;
+     ADC10CTL0 = SREF_1 | ADC10SHT_3 | REFON | ADC10ON ;//Vref+, Vss, 64 ATD clocks per sample, internal references, turn ADCON
+     ADC10CTL0 |= ENC + ADC10SC +MSC;
+}
+
+void ConfigureAdc_pot2(){
+    ADC10CTL0 &= ~ENC;
+     ADC10CTL1 = INCH_5 + ADC10DIV_0 + CONSEQ_2;
+     ADC10CTL0 = SREF_1 | ADC10SHT_3 | REFON | ADC10ON ;//Vref+, Vss, 64 ATD clocks per sample, internal references, turn ADCON
+     ADC10CTL0 |= ENC + ADC10SC +MSC;
+}
+
